@@ -1,3 +1,18 @@
+# dgist-cvlab team Innoviz challenge submission
+
+ - Step 1. Waymo pretraining
+   - `python train.py --cfg_file ./cfgs/waymo_models/pv_rcnn_plusplus_noint_w3_f.yaml`
+ - Step 2. Innoviz finetune with 103 samples
+   - `python train.py --cfg_file ./cfgs/innoviz_models/pv_rcnn_plusplus_noint_finetune.yaml --pretrained_model ../output/waymo_models/pv_rcnn_plusplus_noint_w3_f/default/ckpt/checkpoint_epoch_50.pth`
+ - Step 3. Get pseudo label from innoviz dataset with finetuned network.
+   - `python test.py --cfg_file ./cfgs/innonviz_models/pv_rcnn_plusplus_noint_finetune.yaml --ckpt ../output/cfgs/innoviz_models/pv_rcnn_plusplus_noint_finetune/default/ckpt/checkpoint_epoch_45.pth`
+ - Step 4. Innoviz finetune including pseudo label (self-training)
+   - `python train.py --cfg_file ./cfgs/innoviz_models pv_rcnn_plusplus_noint_finetune_phase2.yaml --pretrained_model ../output/waymo_models/pv_rcnn_plusplus_noint_w3_f/default/ckpt/checkpoint_epoch_50.pth`
+
+for k-fold training, use `train_fold_nomp.py` instead.
+
+for ensemble models, use `ensemble_merge_submit.py`.
+
 <img src="docs/open_mmlab.png" align="right" width="30%">
 
 # OpenPCDet

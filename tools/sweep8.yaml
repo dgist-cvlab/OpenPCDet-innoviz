@@ -1,0 +1,104 @@
+program: train_fold_nomp.py
+method: grid
+metric:
+  goal: maximize
+  # name: val/LEVEL2_mAP
+  name: val/xy_iou
+parameters:
+  cfg_file:
+    value: "./cfgs/innoviz_models/pv_rcnn_plusplus_noint_finetune72_truck.yaml"
+    distribution: constant
+  pretrained_model:
+    value: "../output/waymo2_models/pv_rcnn_plusplus_noint_w3_f/default/ckpt/checkpoint_epoch_50.pth"
+    distribution: constant
+  # kfold:
+  #   value: "5"
+  #   distribution: constant
+  
+  OPTIMIZATION.WARMUP_EPOCH:
+    value: 5
+    distribution: constant
+  OPTIMIZATION.NUM_EPOCHS:
+    value: 100
+    distribution: constant
+    # value: 2
+    # distribution: constant
+  OPTIMIZATION.LR:
+    value: 0.01
+    distribution: constant
+  # MODEL.FREEZE_MODULE_STATUS.MAP_TO_BEV_MODULE:
+  #   max: 1
+  #   min: 0
+  #   distribution: int_uniform
+  # MODEL.FREEZE_MODULE_STATUS.BACKBONE_TRANS:
+  #   max: 1
+  #   min: 1
+  #   distribution: int_uniform
+  # MODEL.FREEZE_MODULE_STATUS.BACKBONE_ENC:
+  #   max: 1
+  #   min: 1
+  #   distribution: int_uniform
+  # MODEL.FREEZE_MODULE_STATUS.BACKBONE_3D:
+  #   max: 1
+  #   min: 0
+  #   distribution: int_uniform
+  # MODEL.FREEZE_MODULE_STATUS.BACKBONE_2D:
+  #   max: 2
+  #   min: 0
+  #   distribution: int_uniform
+  MODEL.FREEZE_MODULE_STATUS.POINT_HEAD:
+    max: 2
+    min: 0
+    distribution: int_uniform
+  MODEL.FREEZE_MODULE_STATUS.DENSE_HEAD:
+    max: 1
+    min: 0
+    distribution: int_uniform
+  MODEL.FREEZE_MODULE_STATUS.ROI_HEAD:
+    max: 2
+    min: 0
+    distribution: int_uniform
+  # MODEL.FREEZE_MODULE_STATUS.VFE:
+  #   max: 2
+  #   min: 0
+  #   distribution: int_uniform
+  # MODEL.FREEZE_MODULE_STATUS.PFE:
+  #   max: 1
+  #   min: 0
+  #   distribution: int_uniform
+  
+  # MODEL.ROI_HEAD.NMS_CONFIG.TRAIN.NMS_THRESH:
+  #   max: 0.90
+  #   min: 0.50
+  #   distribution: uniform
+  # MODEL.DENSE_HEAD.POST_PROCESSING.NMS_CONFIG.NMS_THRESH:
+  #   max: 1.00
+  #   min: 0.85
+  #   distribution: uniform
+  # MODEL.DENSE_HEAD.POST_PROCESSING.SCORE_THRESH:
+  #   max: 0.35
+  #   min: 0.25
+  #   distribution: uniform
+  
+  # MODEL.PFE.SPC_SAMPLING.SAMPLE_RADIUS_WITH_ROI:
+  #   max: 2.2
+  #   min: 1.7
+  #   distribution: uniform
+
+  DATA_CONFIG.USE_SUB1300:
+    values:
+    - "True"
+    - "False"
+    distribution: categorical
+
+  # DATA_CONFIG.DATA_AUGMENTOR.CONF_FOR_SWEEP.RATIO_FACTOR:
+  #   max: 0.90
+  #   min: 0.55
+  #   distribution: uniform
+
+  # DATA_CONFIG.DATA_AUGMENTOR.CONF_FOR_SWEEP.JITTER_FACTOR:
+  #   values:
+  #   - 0.00
+  #   - 0.05
+  #   - 0.10
+  #   distribution: categorical

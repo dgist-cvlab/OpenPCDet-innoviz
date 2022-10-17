@@ -1,0 +1,106 @@
+DATASET: 'InnovizDataset'
+DATA_PATH: '../data/innoviz'
+
+POINT_CLOUD_RANGE: [0, -80, -2, 281.6, 80, 4]
+
+DATA_SPLIT: {
+    'train': 'testing',
+    'test': 'testing'
+}
+
+CLASS_REMAP: {
+  "Car": "Vehicle",
+  "Vehicle": "Vehicle",
+  "Pedestrian": "Pedestrian",
+  "Cyclist": "Cyclist",
+  "Motorcycle": "Cyclist",
+  "Truck": "Truck",
+  "Unknown": "Unknown",
+}
+
+DATA_AUGMENTOR:
+    DISABLE_AUG_LIST: ['placeholder']
+    CONF_FOR_SWEEP:
+      RATIO_FACTOR: 0.8
+      JITTER_FACTOR: 0.1
+      
+    AUG_CONFIG_LIST:
+        - NAME: gt_sampling
+          USE_ROAD_PLANE: False
+          DB_INFO_PATH:
+              - innoviz_processed_data_v0_1_0_1300_innoviz_dbinfos_train_sampled_1.pkl
+              - innoviz_processed_data_v0_1_0_innoviz_dbinfos_train_sampled_1.pkl
+              # - waymo_processed_data_v0_5_1_waymo_dbinfos_train_sampled_1_link.pkl
+
+          USE_SHARED_MEMORY: False  # set it to True to speed up (it costs about 15GB shared memory)
+          DB_DATA_PATH:
+              # - innoviz_processed_data_1300_v0_1_0_gt_database_train_sampled_1_global.npy
+              - none.npy
+
+          BACKUP_DB_INFO:
+              # if the above DB_INFO cannot be found, will use this backup one
+              DB_INFO_PATH: none.pkl
+              DB_DATA_PATH: none.npy
+              NUM_POINT_FEATURES: 4
+
+          PREPARE: {
+             filter_by_min_points: ['Vehicle:5', 'Pedestrian:5', 'Cyclist:5', 'Truck:8'],
+            #  filter_by_difficulty: [-1],
+          }
+
+          SAMPLE_GROUPS: ['Vehicle:18', 'Pedestrian:10', 'Cyclist:10', 'Truck:5']
+          NUM_POINT_FEATURES: 4
+          REMOVE_EXTRA_WIDTH: [0.0, 0.0, 0.0]
+          LIMIT_WHOLE_SCENE: True
+
+        - NAME: random_object_rotation
+          ROT_PROB: 0.2
+          ROT_UNIFORM_NOISE: [ -0.38539816, 0.38539816 ]
+
+        - NAME: random_world_translation
+          # WORLD_TRANSLATION_RANGE: [ -0.2, 0.2 ] # no longer used
+          ALONG_AXIS_LIST: ['x', 'y', 'z']
+          NOISE_TRANSLATE_STD: [1.0, 0.5, 0.05]
+          NOISE_TRANSLATE_OFFSET: [0.0, 0.0, 0.0]
+
+        - NAME: random_world_flip
+          ALONG_AXIS_LIST: ['x']
+
+        - NAME: random_world_rotation
+          WORLD_ROT_ANGLE: [-0.471238898, 0.471238898] # 27 degrees
+
+        - NAME: random_world_scaling
+          WORLD_SCALE_RANGE: [0.95, 1.05]
+        
+        - NAME: shadow_random_drop
+          RATIO_FACTOR: 0.8
+
+        - NAME: shadow_jitter
+          JITTER_FACTOR: [0.05, 0.05, 0.1]
+        
+        
+
+POINT_FEATURE_ENCODING: {
+    encoding_type: absolute_coordinates_encoding,
+    used_feature_list: ['x', 'y', 'z'],
+    src_feature_list: ['x', 'y', 'z', 'intensity'],
+}
+
+# DATA_PROCESSOR: []
+DATA_PROCESSOR:
+    - NAME: mask_points_and_boxes_outside_range
+      REMOVE_OUTSIDE_BOXES: True
+
+    - NAME: shuffle_points
+      SHUFFLE_ENABLED: {
+        'train': True,
+        'test': False
+      }
+
+    - NAME: transform_points_to_voxels
+      VOXEL_SIZE: [0.1, 0.1, 0.15]
+      MAX_POINTS_PER_VOXEL: 5
+      MAX_NUMBER_OF_VOXELS: {
+        'train': 160000,
+        'test': 672775
+      }
